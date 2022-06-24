@@ -1,0 +1,146 @@
+Db类方法
+     查询
+        table('tablename')：指定表
+        name('tablename')：忽略表的前缀
+        find()：查询一条数据
+        getLastSql()：得到最近一条 SQL 查询的原生语句
+        find()：查询一条数据，没有则返回null
+        findOrFail()：查询一条数据，没有则抛出异常
+        findOrEmpty()：查询一条数据，没有则返回空数组
+        select()：获得多列数据
+        selectOrFail()：查询多条数据，没有则抛出异常
+        value('field','field')：查询指定字段的值（单个），没有数据返回 null
+     添加
+        insert([])：向数据表添加一条数据，新增成功返回1
+        insert([], true)：支持 REPLACE 写入
+        data([])：来设置添加的数据数组
+        insertGetId([])：在新增成功后返回当前数据 ID
+        insertAll([[],[]])：批量新增数据，但要保持数组结构一致
+     修改
+        update([])：修改数据，修改成功返回影响行数，没有返回0
+        inc('field',2)：对字段增值
+        dec('field',2)；对字段减值
+        exp('field','SUM(field)')：以在字段中使用 mysql 函数
+        raw()：修改更新，更加容易方便
+        setField()：更新一个字段值
+        setInc('field',2)：增值
+        setDec('field',2)：减值
+     删除
+        delete(1)：根据主键直接删除，删除成功返回影响行数，否则 0
+        delete([48,49,50])：根据主键，还可以删除多条记录
+        delete(true)：通过 true 参数删除数据表所有数据
+     其他
+        <>、>、<、>=、<=：比较运算符
+        like查询
+            where('addtime','like','%2022-03%')
+            where('addtime','like',['%2022-02%','%2022-03%'],'or')
+            whereLike('email','xiao%')
+            whereNotLike('email','xiao%')
+        between查询
+            where('id','between','19,25')
+            where('id','between',[19, 25])
+            whereBetween('id',[19, 25])
+            whereNotBetween('id',[19, 25])
+        时间查询
+            where('create_time', 'between time', ['2018-1-1', '2019-12-31'])：使用 between 关键字来设置时间的区间
+            where('create_time', 'not between time', ['2018-1-1', '2019-12-31'])：使用 between 关键字来设置时间的区间
+            whereTime('create_time', '>', '2018-1-1')
+            whereBetween('create_time', ['2018-1-1', '2019-12-31'])
+            whereBetweenTime('create_time', '2018-1-1', '2019-12-31')：只有一个参数就表示一天
+            今天:today,昨天:yesterday,本周:week,上周:last week,本月:month,上月:last month,今年:year,去年:last year
+            whereTime('create_time','today')
+            whereTime('create_time', '-2 hour')
+            whereBetweenTimeField('start_time', 'end_time')
+        in查询
+            where('id','in', '19,21,29')
+            whereIn('id','19,21,29')
+            whereNotIn('id','19,21,29')
+        null查询
+            where('field','null')
+            where('field','not null')
+            whereNull('field')
+            whereNotNull('field')
+        exp其它查询
+            where('id','exp','IN (19,21,25)')
+            whereExp('id','IN (19,21,25)')
+     聚合查询
+        count('field')：求出所查询数据的数量
+        max('field')：求出所查询数据字段的最大值
+        min('field')：求出所查询数据字段的最小值，也可以强制转换
+        avg('field')：求出所查询数据字段的平均值
+        sum('field')：求出所查询数据字段的总和
+     子查询
+        fetchSql(true)：设置不执行 SQL，而返回 SQL 语句，默认 true
+        buildSql(true)：返回 SQL 语句，但不需要再执行 select()，且有括号
+     原生查询
+        query('select * from tp_user')：进行原生 SQL 查询，适用于读取操作，SQL 错误返回 false
+        execute('update tp_user set username="孙悟空" where id=29')：进行原生 SQL 更新写入等，SQL 错误返回 false
+     链式方法
+        where(字段名,表达式,查询条件)：条件查询
+        where([[字段名,表达式,查询条件],[字段名,表达式,查询条件]])：多条件查询
+        where('gender="男" AND price IN (60, 70, 80)')：简单粗暴的查询方式
+        field('id,username as name')：指定要查询的字段，并设置别名
+        field('id,SUM(price)')：直接给字段设置 MySQL 函数
+        field(['id', 'LEFT(email, 5)'=>'leftemail'])：复杂的 MySQL 函数，必须使用字段数组形式
+        field(true)：显式的查询获取所有字段
+        field(['details,email'], true)：屏蔽掉想要不显示的字段
+        alias('a')：给表起一个别名
+        limit(5)：限制获取输出数据的个数
+        limit(2, 5)：从第 3 条开始显示 5 条
+        page(1, 5)：page()分页方法，优化了 limit()方法，无须计算分页条数
+        order(['create_time'=>'desc', 'price'=>'asc'])：支持数组的方式，对多个字段进行排序
+        group('gender,password')：进行多字段分组统计
+        Db::name('user') ->field('gender, sum(price)') ->group('gender') ->having('sum(price)>600') ->select()：使用 group()分组之后，再使用 having()进行筛选
+     视图渲染
+        return $this->fetch('edit'); //指定模版
+        return $this->fetch('public/edit'); //指定目录下的模版
+        return $this->fetch('admin@public/edit'); //指定模块下的模版
+        return $this->fetch('/edit'); //view_path 下的模版
+        如果没有继承 Controller 控制器的话，可以使用助手函数 view()方法
+     视图赋值
+        $this->assign('name', 'ThinkPHP'); 使用 assign()方法进行赋值，{$name}读取
+        $this->assign([ 'username' => '辉夜', 'email' => 'huiye@163.com'} ]);通过数组的方式，进行多个变量的赋值
+        return $this->fetch('index', [ 'username' => '辉夜', 'email' => 'huiye@163.com' ]);assign()方法和 fetch()方法也可以合二为一进行操作
+        return view('index', [ 'username' => '辉夜', 'email' => 'huiye@163.com' ]); 使用 view()助手函数实现渲染并赋值操作
+     模版变量输出
+        {$name}：变量的方式
+        {$user.username}.{$user.email}或{$user['email']}：数组的方式
+        {$obj->username}.{$obj->email}：对象的方式
+        $_SERVER、$_ENV、$_GET、$_POST、$_REQUEST、$_SESSION 和$_COOKIE：系统变量
+        {$Think.config.default_return_type}：输出系统变量
+        {$password|md5}：设置 md5 加密操作
+        {$user['email']|raw}：不需要进行 HTML 实体转义的话，可以单独使用 raw 处理
+        date    格式化时间{$time|date='Y-m-d'}
+        format  格式化字符串{$number|format='%x'}
+        upper   转换为大写
+        lower   转换为小写
+        first   输出数组的第一个元素
+        last    输出数组的最后一个元素
+        default 默认值
+        raw     不使用转义
+        {$password|md5|upper|substr=0,3}：在模版中也支持多个函数进行操作，用|号隔开即可，函数从左到右依次执行
+        {:substr(strtoupper(md5($password)), 0, 3)}：在模版中直接使用 PHP 的语法模式
+        在模版中的运算符有+、-、*、/、%、++、--等；模版中有运算符，则函数方法则不再支持
+        {$name ? '正确' : '错误'}
+     循环标签
+        {foreach $list as $k=>$v}{/foreach}
+        {volist name='list' id='v' offset='3' lnegth='5'}{/volist}
+        {for start='1' end='100' comparison='<' step='2' name='i'}{/for}
+     比较标签和定义标签
+        {eq name='username' value='Mr.Lee'}李先生{/eq}：属性 name 里是一个变量，$符号可加可不加；而 value 里是一个字符串
+        {neq name='' value=''}{/neq}
+        {eq name='' value=''}{else/}{/eq}
+        {compare name='username' value='Mr.Lee' type='eq'}两个值相等{/compare}：所有的标签都可以统一为{compare}标签使用，增加一个 type 方法指定即可
+     条件判断标签
+        {switch number}
+            {case 1}1{/case}
+            {case 5}5{/case}
+            {case 10}10{/case}
+            {default/}不存在
+        {/switch}
+        {case 10|20|30}：支持多个条件判断，使用|线隔开即可
+        {if ($number > 10) OR ($number > 5)}大于 10{/if}
+        {if $number > 10}大于 10{else/}小于 10{/if}
+        {if $number > 100}大于 100{elseif $number > 50}大于 50{else}小于 50{/if}
+        {empty name='username'}有值{/empty}：是否为空
+     模版的布局和继承

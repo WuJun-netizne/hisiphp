@@ -157,6 +157,7 @@ class SystemUser extends Model
             $this->error = $validate->getError();
             return false;
         }
+        
         $user = self::with('hasRoles')->where($map)->find();
         if (!$user) {
             $this->error = '用户不存在或被禁用！';

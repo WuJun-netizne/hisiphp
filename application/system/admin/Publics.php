@@ -50,6 +50,7 @@ class Publics extends Common
             }
             
             if (!$model->login($username, $password)) {
+
                 $loginError = ($loginError+1);
                 session('admin_login_error', $loginError);
 

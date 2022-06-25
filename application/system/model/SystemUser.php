@@ -152,6 +152,7 @@ class SystemUser extends Model
         $map['username'] = $username;
 
         $validate = new \app\system\validate\SystemUser;
+        
         if ($validate->scene('login')->check(input('post.')) !== true) {
             $this->error = $validate->getError();
             return false;

@@ -428,7 +428,6 @@ class Validate
 
             // 获取数据 支持多维数组
             $value = $this->getDataValue($data, $key);
-
             // 字段验证
             if ($rule instanceof \Closure) {
                 $result = call_user_func_array($rule, [$value, $data, $title, $this]);
